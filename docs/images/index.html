@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <p>
+      目標seed：<input type="text" value="beefbeef" id="targetSeedBox" maxlength="8"><br>
+      事前消費：<input type="number" id="preStepFirst" value="0">～<input type="number" id="preStepLast" value="0"><br>
+      フレーム：±<input type="number" id="frameRange" value="10"><br>
+      分＋秒:±<input type="number" id="minsecRange" value="0"><br>
+    </p>
+    <p>
+      <input type="button" value="しんか" id="button1"">
+      <input type="button" value="カントー" id="button2">
+      <input type="button" value="ポケルス" id="button3">
+    </p>
+    <p><input type="text" id="callLog"></p>
+    <p>
+      <input type="button" value="1つ戻る" id="buttonBack">
+      <input type="button" value="クリア" id="buttonClear">
+    </p>
+    <table border="1" id="resultTable">
+      <tr>
+        <th>初期seed</th>
+        <th>ズレ(Frame)</th>
+        <th>ズレ(分+秒)</th>
+        <th>[F](start)</th>
+        <th>[F](current)</th>
+      </tr></table>
+    <script src="./main.js"></script>
+  </body>
+</html>
