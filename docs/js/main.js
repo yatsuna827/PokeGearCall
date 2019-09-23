@@ -7,57 +7,58 @@ class LCG{
 }
 class PokeGearCall{
     chara = ["し", "カ", "ポ"];
-    constructor(){
-        this.callList = [];
-        this.addCall = (call) => { this.callList.push(call); }
-        this.removeCall = () => { this.callList.pop(); }
-        this.clear = () => { this.callList = []; }
-        this.getCallListStr = () => {
-            if(this.callList.length == 0) return "";
-            let txt = "";
-            for(let i=0; i<this.callList.length-1; i++){
-                txt += this.chara[this.callList[i]] + ",";
-            }
-            return txt + this.chara[this.callList[this.callList.length-1]];
+    callList = [];
+    
+    addCall(call) { this.callList.push(call); }
+    removeCall() { this.callList.pop(); }
+    clear() { this.callList = []; }
+    getCallListStr() {
+        if(this.callList.length == 0) return "";
+        const charaList = this.callList.map(_=>this.chara[_]);
+        return charaList.join(',');
+    }
+    
+    checkSeed(seed) {
+        const length = this.callList.length;
+        let isEqual = true;
+        const templcg = new LCG(seed>>>0);
+        for(let i=0; i<length; i++){
+            isEqual &= this.callList[i] == ((templcg.getRand()>>>0) % 3);
         }
-        this.checkSeed = (seed) => {
-            const length = this.callList.length;
-            let isEqual = true;
-            const templcg = new LCG(seed>>>0);
-            for(let i=0; i<length; i++){
-                isEqual &= this.callList[i] == ((templcg.getRand()>>>0) % 3);
+        return isEqual;
+    }
+
+    
+    doCalc(targetSeed, frameRange, minsecRange, firstStep, lastStep){
+        if(lastStep < firstStep) return [];
+
+        const l24_first = (targetSeed >>> 0) - (frameRange >>> 0);
+        const u8_first = (targetSeed >>> 24) - (minsecRange >>> 0);
+
+        let possibleSeedList = [];
+        for (let u8 = 0; u8 <= 2 * minsecRange; u8++){
+            for (let l24 = 0; l24 <= 2 * frameRange; l24++){
+                const array = [(u8_first + u8) << 24 | ((l24_first + l24) & 0xFFFFFF), l24 - frameRange, u8 - minsecRange ];
+                possibleSeedList.push(array);
             }
-            return isEqual;
         }
-        this.doCalc = (targetSeed, frameRange, minsecRange, firstStep, lastStep)=>{
-            if(lastStep > firstStep) return [];
 
-            const l24_first = (targetSeed >>> 0) - (frameRange >>> 0);
-            const u8_first = (targetSeed >>> 24) - (minsecRange >>> 0);
-
-            let possibleSeedList = [];
-            for (let u8 = 0; u8 <= 2 * minsecRange; u8++){
-                for (let l24 = 0; l24 <= 2 * frameRange; l24++){
-                    const array = [(u8_first + u8) << 24 | ((l24_first + l24) & 0xFFFFFF), l24 - frameRange, u8 - minsecRange ];
-                    possibleSeedList.push(array);
-                }
+        let res = [];
+        for (let i=0; i<possibleSeedList.length; i++)
+        {
+            const templcg = new LCG(possibleSeedList[i][0]);
+            console.log(zeroPadding(templcg.seed));
+            for(let k=0; k<firstStep; k++){
+                templcg.advance();
             }
-            let res = [];
-            for (let i=0;i< possibleSeedList.length; i++)
+            for (let step = firstStep; step <= lastStep; step++)
             {
-                const templcg = new LCG(possibleSeedList[i][0]);
-                for(let k=0; k<firstStep; k++){
-                    templcg.advance();
-                }
-                for (let step = firstStep; step <= lastStep; step++)
-                {
-                    if (this.checkSeed(templcg.seed))
-                        res.push([possibleSeedList[i][0], possibleSeedList[i][1], possibleSeedList[i][2], step, step + this.callList.length]);
-                    templcg.advance();
-                }
+                if (this.checkSeed(templcg.seed))
+                    res.push([possibleSeedList[i][0], possibleSeedList[i][1], possibleSeedList[i][2], step*1, step*1 + this.callList.length]);
+                templcg.advance();
             }
-            return res;
         }
+        return res;
     }
 }
 
